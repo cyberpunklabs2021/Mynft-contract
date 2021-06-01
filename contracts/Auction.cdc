@@ -3,7 +3,7 @@
 
 import FungibleToken from 0x9a0766d93b6608b7
 import FlowToken from 0x7e60df042a9c0868
-import Art from 0xb8daf9d5dad74056
+import Art from 0x0c3881df196c01c9
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
 //This contract was made during OWB so the code here is some of the first cadence code we (0xAlchemist and 0xBjartek wrote)

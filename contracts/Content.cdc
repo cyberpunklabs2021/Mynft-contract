@@ -1,4 +1,3 @@
-
 pub contract Content {
 
     pub var totalSupply: UInt64

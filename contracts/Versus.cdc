@@ -1,6 +1,6 @@
 import FungibleToken from 0x9a0766d93b6608b7
 import NonFungibleToken from  0x631e88ae7f1d7c20
-import Art,Content,Auction from 0xb8daf9d5dad74056
+import Art,Auction,Content from 0x0c3881df196c01c9
 
 /*
  The main contract in the Versus auction system.

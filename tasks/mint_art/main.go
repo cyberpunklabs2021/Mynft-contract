@@ -14,16 +14,15 @@ import (
 )
 
 var (
-	senderAddress2 = "b8daf9d5dad74056"
-	senderPriv2    = "24a3a149b00de3b26911f17603fba9e5e72281425cae91bd88727659fc86621e"
+	senderAddress2 = "0c3881df196c01c9"
+	senderPriv2    = "37913a5c7a4632e3f6915b53d1340f68ddd087ac30ccd36cfff9ff5bf659ac4b"
 )
 
 const mintArt string = `
 //testnet
 import FungibleToken from 0x9a0766d93b6608b7
 import NonFungibleToken from 0x631e88ae7f1d7c20
-import Art from 0xb8daf9d5dad74056
-import Content from 0x004d26ac408ce9d6
+import Art,Content,Versus from 0x0c3881df196c01c9
 
 
 
@@ -74,7 +73,7 @@ func main() {
 		SetPayer(acctAddress). // 支付這筆交易手續費的人, 大部分是自己支付
 		AddAuthorizer(acctAddress) // 驗證的簽名者, 大部分是自己驗證
 
-	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress("b8daf9d5dad74056"))); err != nil {
+	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress("0c3881df196c01c9"))); err != nil {
 		panic(err)
 	}
 	if err := tx.AddArgument(cadence.NewString("ExampleArtist")); err != nil {
@@ -117,7 +116,6 @@ func getAccount2(flowClient *client.Client, priveKey string) (flow.Address, *flo
 		panic(err)
 	}
 	accountKey := acc.Keys[0] // 大部分地址只會有一個 AccountKey, 雖然 flow 支持一個地址可以很多 AccountKey
-	fmt.Println(accountKey)
 	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo) // 傳入私鑰及 AccountKey 加密算法按照方式轉換成簽名者
 	return addr, accountKey, signer
 }
