@@ -1,7 +1,7 @@
 
 import NonFungibleToken from 0x631e88ae7f1d7c20
 import FungibleToken from 0x9a0766d93b6608b7
-import Content from 0x004d26ac408ce9d6
+import Content from 0xb8daf9d5dad74056
 
 //A NFT contract to store art
 pub contract Art: NonFungibleToken {

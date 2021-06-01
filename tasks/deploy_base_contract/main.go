@@ -29,31 +29,16 @@ func main() {
 		panic(err)
 	}
 	serviceAcctAddr, serviceAcctKey, singer := getSenderInfo(flowClient, senderPriv)
-	var contracts []templates.Contract
-	// contractPath2 := "/Users/jay/Desktop/selfcode/Mynft-contract/contracts/Content.cdc"
-	// code2, err := ioutil.ReadFile(contractPath2)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	//
-	// contracts = append(contracts, templates.Contract{
-	// 	Name:   "Content",
-	// 	Source: string(code2),
-	// })
 
-	contractPath := "/Users/jay/Desktop/selfcode/Mynft-contract/contracts/Art.cdc"
+	contractPath := "../contracts/Versus.cdc"
 	code, err := ioutil.ReadFile(contractPath)
 	if err != nil {
 		panic(err)
 	}
-
-	contracts = append(contracts, templates.Contract{
-		Name:   "Art",
+	tx := templates.AddAccountContract(serviceAcctAddr, templates.Contract{
+		Name:   "Versus",
 		Source: string(code),
 	})
-
-
-	tx := templates.CreateAccount(nil, contracts, serviceAcctAddr)
 	tx.SetProposalKey(
 		serviceAcctAddr,
 		serviceAcctKey.Index,
@@ -62,7 +47,9 @@ func main() {
 	// we can set the same reference block id. We shouldn't be to far away from it
 	tx.SetReferenceBlockID(referenceBlock.ID)
 	tx.SetPayer(serviceAcctAddr)
+	tx.SetGasLimit(9999)
 
+	// tx.AddAuthorizer(serviceAcctAddr)
 	if err := tx.SignEnvelope(serviceAcctAddr, serviceAcctKey.Index, singer); err != nil {
 		panic(err)
 	}
@@ -89,4 +76,11 @@ func getSenderInfo(flowClient *client.Client, privKeyStr string) (flow.Address, 
 	accountKey := acc.Keys[0]
 	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo)
 	return addr, accountKey, signer
+}
+func NewAccountKey(acckKey *flow.AccountKey) *flow.AccountKey {
+	return flow.NewAccountKey().
+		SetPublicKey(acckKey.PublicKey).
+		SetSigAlgo(acckKey.SigAlgo).
+		SetHashAlgo(acckKey.HashAlgo).
+		SetWeight(flow.AccountKeyWeightThreshold)
 }
