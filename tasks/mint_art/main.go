@@ -73,7 +73,7 @@ func main() {
 		SetPayer(acctAddress). // 支付這筆交易手續費的人, 大部分是自己支付
 		AddAuthorizer(acctAddress) // 驗證的簽名者, 大部分是自己驗證
 
-	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress("0c3881df196c01c9"))); err != nil {
+	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress(senderAddress2))); err != nil {
 		panic(err)
 	}
 	if err := tx.AddArgument(cadence.NewString("ExampleArtist")); err != nil {
@@ -115,7 +115,7 @@ func getAccount2(flowClient *client.Client, priveKey string) (flow.Address, *flo
 	if err != nil {
 		panic(err)
 	}
-	accountKey := acc.Keys[0] // 大部分地址只會有一個 AccountKey, 雖然 flow 支持一個地址可以很多 AccountKey
+	accountKey := acc.Keys[0]                                           // 大部分地址只會有一個 AccountKey, 雖然 flow 支持一個地址可以很多 AccountKey
 	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo) // 傳入私鑰及 AccountKey 加密算法按照方式轉換成簽名者
 	return addr, accountKey, signer
 }
