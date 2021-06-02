@@ -14,8 +14,10 @@ import (
 )
 
 var (
-	senderAddress = "0c3881df196c01c9"
-	senderPriv    = "37913a5c7a4632e3f6915b53d1340f68ddd087ac30ccd36cfff9ff5bf659ac4b"
+	// senderAddress = "0c3881df196c01c9"
+	// senderPriv    = "37913a5c7a4632e3f6915b53d1340f68ddd087ac30ccd36cfff9ff5bf659ac4b"
+	senderAddress = "b8daf9d5dad74056"
+	senderPriv    = "24a3a149b00de3b26911f17603fba9e5e72281425cae91bd88727659fc86621e"
 )
 
 func main() {
@@ -30,11 +32,10 @@ func main() {
 	}
 	serviceAcctAddr, serviceAcctKey, singer := getSenderInfo(flowClient, senderPriv)
 
-	// name := "Content"
-		name := "ArtA"
-	// 	name := "Auction"
-	// 	name := "Versus"
-
+	name := "Content"
+	// name := "Art"
+	// name := "Auction"
+	// name := "Versus"
 
 	contractPath := fmt.Sprintf("../contracts/%s.cdc", name)
 	code, err := ioutil.ReadFile(contractPath)

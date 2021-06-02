@@ -16,41 +16,25 @@ import (
 var (
 	senderAddress2 = "0c3881df196c01c9"
 	senderPriv2    = "37913a5c7a4632e3f6915b53d1340f68ddd087ac30ccd36cfff9ff5bf659ac4b"
-)
+	transfetCode   = `
 
-const mintArt string = `
-//testnet
 import FungibleToken from 0x9a0766d93b6608b7
 import NonFungibleToken from 0x631e88ae7f1d7c20
-import Art,Content,Versus from 0x0c3881df196c01c9
+import Art from 0x0c3881df196c01c9
+transaction(address:Address, artID: UInt64) {
+  let nftCollection: &NonFungibleToken.Collection
+  prepare(account: AuthAccount) {
+    self.nftCollection =account.borrow<&NonFungibleToken.Collection>(from: Art.CollectionStoragePath)!
+  }
 
-
-
-
-transaction(
-    artist: Address,
-    artistName: String, 
-    artName: String, 
-    content: String, 
-    description: String) {
-
-    let artistCollection: Capability<&{Art.CollectionPublic}>
-    let client: &Versus.Admin
-
-    prepare(account: AuthAccount) {
-
-        self.client = account.borrow<&Versus.Admin>(from: Versus.VersusAdminStoragePath) ?? panic("could not load versus admin")
-        self.artistCollection= getAccount(artist).getCapability<&{Art.CollectionPublic}>(Art.CollectionPublicPath)
-    }
-
-    execute {
-        let art <-  self.client.mintArt(artist: artist, artistName: artistName, artName: artName, content:content, description: description)
-        self.artistCollection.borrow()!.deposit(token: <- art)
-    }
+  execute {
+      let versusCollection : &{Art.CollectionPublic} = getAccount(address).getCapability<&{Art.CollectionPublic}>(Art.CollectionPublicPath).borrow()!
+      let art <- self.nftCollection.withdraw(withdrawID:artID)
+      versusCollection.deposit(token: <- art)
+  }
 }
-
-
 `
+)
 
 func main() {
 	ctx := context.Background()
@@ -66,26 +50,17 @@ func main() {
 	acctAddress, acctKey, signer := getAccount2(flowClient, senderPriv2)
 
 	tx := flow.NewTransaction().
-		SetScript([]byte(mintArt)). // 交易要調用的合約
+		SetScript([]byte(transfetCode)). // 交易要調用的合約
 		SetGasLimit(100). // 測試網具體應該多少不知道, 但填100都是會過得
 		SetProposalKey(acctAddress, acctKey.Index, acctKey.SequenceNumber). // 會去用就可以了
 		SetReferenceBlockID(referenceBlock.ID). // 標記給交易回朔一個區塊ID
 		SetPayer(acctAddress). // 支付這筆交易手續費的人, 大部分是自己支付
 		AddAuthorizer(acctAddress) // 驗證的簽名者, 大部分是自己驗證
 
-	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress(senderAddress2))); err != nil {
+	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress("b8daf9d5dad74056"))); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewString("ExampleArtist222")); err != nil {
-		panic(err)
-	}
-	if err := tx.AddArgument(cadence.NewString("Example title22")); err != nil {
-		panic(err)
-	}
-	if err := tx.AddArgument(cadence.NewString("image url22")); err != nil {
-		panic(err)
-	}
-	if err := tx.AddArgument(cadence.NewString("Description22")); err != nil {
+	if err := tx.AddArgument(cadence.NewUInt64(1)); err != nil {
 		panic(err)
 	}
 
