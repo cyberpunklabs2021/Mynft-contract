@@ -5,24 +5,17 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 
-	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flow-go-sdk/templates"
 	"google.golang.org/grpc"
-)
 
-var (
-	// senderAddress = "0c3881df196c01c9"
-	// senderPriv    = "37913a5c7a4632e3f6915b53d1340f68ddd087ac30ccd36cfff9ff5bf659ac4b"
-	senderAddress = "b8daf9d5dad74056"
-	senderPriv    = "24a3a149b00de3b26911f17603fba9e5e72281425cae91bd88727659fc86621e"
+	"Mynft-contractf/common"
 )
 
 func main() {
 	ctx := context.Background()
-	flowClient, err := client.New("access.devnet.nodes.onflow.org:9000", grpc.WithInsecure())
+	flowClient, err := client.New(common.Config.Node, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
@@ -30,7 +23,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	serviceAcctAddr, serviceAcctKey, singer := getSenderInfo(flowClient, senderPriv)
+	serviceAcctAddr, serviceAcctKey, singer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
 
 	name := "Content"
 	// name := "Art"
@@ -56,7 +49,6 @@ func main() {
 	tx.SetPayer(serviceAcctAddr)
 	tx.SetGasLimit(9999)
 
-	// tx.AddAuthorizer(serviceAcctAddr)
 	if err := tx.SignEnvelope(serviceAcctAddr, serviceAcctKey.Index, singer); err != nil {
 		panic(err)
 	}
@@ -64,30 +56,6 @@ func main() {
 	if err := flowClient.SendTransaction(ctx, *tx); err != nil {
 		panic(err)
 	}
-	fmt.Println("tx ID is ---- ", tx.ID().String())
-}
 
-func getSenderInfo(flowClient *client.Client, privKeyStr string) (flow.Address, *flow.AccountKey, crypto.Signer) {
-	privateKeySigAlgo := crypto.StringToSignatureAlgorithm(crypto.ECDSA_P256.String())
-	privateKey, err := crypto.DecodePrivateKeyHex(privateKeySigAlgo, privKeyStr)
-	if err != nil {
-		panic(err)
-	}
-
-	addr := flow.HexToAddress(senderAddress)
-	acc, err := flowClient.GetAccount(context.Background(), addr)
-	if err != nil {
-		panic(err)
-	}
-
-	accountKey := acc.Keys[0]
-	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo)
-	return addr, accountKey, signer
-}
-func NewAccountKey(acckKey *flow.AccountKey) *flow.AccountKey {
-	return flow.NewAccountKey().
-		SetPublicKey(acckKey.PublicKey).
-		SetSigAlgo(acckKey.SigAlgo).
-		SetHashAlgo(acckKey.HashAlgo).
-		SetWeight(flow.AccountKeyWeightThreshold)
+	common.WaitForSeal(ctx, flowClient, tx.ID())
 }

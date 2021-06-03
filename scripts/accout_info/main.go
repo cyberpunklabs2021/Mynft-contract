@@ -10,11 +10,13 @@ import (
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"google.golang.org/grpc"
+
+	"Mynft-contractf/common"
 )
 
-const getInfo string = `
-import FungibleToken from 0x9a0766d93b6608b7
-import NonFungibleToken from  0x631e88ae7f1d7c20
+var getInfo string = fmt.Sprintf(`
+import FungibleToken from %s
+import NonFungibleTokenAddress from  %s
 import Art,Auction,Content from 0x0c3881df196c01c9
 
 pub struct AddressStatus {
@@ -42,36 +44,35 @@ pub fun main(address:Address) : AddressStatus {
     }
 
     status.art= Art.getArt(address: address)
-    
     return status
-
 }
-
-`
+`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress)
 
 var (
-	senderAddress = "0c3881df196c01c9"
+	searchAddress = "344d25cddb58ed2b"
 )
 
 func main() {
-	flowClient, err := client.New("access.devnet.nodes.onflow.org:9000", grpc.WithInsecure())
+	flowClient, err := client.New(common.Config.Node, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
 
 	ctx := context.Background()
-	result, err := flowClient.ExecuteScriptAtLatestBlock(ctx, []byte(getInfo), []cadence.Value{cadence.NewAddress(flow.HexToAddress(senderAddress))})
+	result, err := flowClient.ExecuteScriptAtLatestBlock(ctx, []byte(getInfo), []cadence.Value{cadence.NewAddress(flow.HexToAddress(searchAddress))})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(CadenceValueToJsonString(result))
 }
+
 func CadenceValueToJsonString(value cadence.Value) string {
 	result := CadenceValueToInterface(value)
 	json1, _ := json.MarshalIndent(result, "", "    ")
 	return string(json1)
 }
+
 func CadenceValueToInterface(field cadence.Value) interface{} {
 	switch field.(type) {
 	case cadence.Dictionary:
@@ -100,33 +101,4 @@ func CadenceValueToInterface(field cadence.Value) interface{} {
 		}
 		return result
 	}
-
-	// dictionaryValue, isDictionary := field.(cadence.Dictionary)
-	// structValue, isStruct := field.(cadence.Struct)
-	// arrayValue, isArray := field.(cadence.Array)
-	// if isStruct {
-	// 	subStructNames := structValue.StructType.Fields
-	// 	result := map[string]interface{}{}
-	// 	for j, subField := range structValue.Fields {
-	// 		result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
-	// 	}
-	// 	return result
-	// } else if isDictionary {
-	// 	result := map[string]interface{}{}
-	// 	for _, item := range dictionaryValue.Pairs {
-	// 		result[item.Key.String()] = CadenceValueToInterface(item.Value)
-	// 	}
-	// 	return result
-	// } else if isArray {
-	// 	result := []interface{}{}
-	// 	for _, item := range arrayValue.Values {
-	// 		result = append(result, CadenceValueToInterface(item))
-	// 	}
-	// 	return result
-	// }
-	// result, err := strconv.Unquote(field.String())
-	// if err != nil {
-	// 	return field.String()
-	// }
-	// return result
 }
