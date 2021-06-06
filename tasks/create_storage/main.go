@@ -13,7 +13,7 @@ import (
 )
 
 var createStorage string = fmt.Sprintf(`
-import NonFungibleTokenAddress from %s
+import NonFungibleToken from %s
 import Art from %s
 transaction() {
   prepare(signer: AuthAccount) {

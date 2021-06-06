@@ -15,7 +15,7 @@ import (
 var versus1 string = fmt.Sprintf(
 	`
 import FungibleToken from %s
-import NonFungibleTokenAddress from %s
+import NonFungibleToken from %s
 import Content, Art, Auction, %s
 
 transaction() {
@@ -31,7 +31,7 @@ transaction() {
 var versus2 string = fmt.Sprintf(
 	`
 import FungibleToken from %s
-import NonFungibleTokenAddress from %s
+import NonFungibleToken from %s
 import Content, Art, Auction, Versus from %s
 
 transaction(ownerAddress: Address) {

@@ -14,10 +14,10 @@ import (
 	"Mynft-contractf/common"
 )
 
-var getInfo string = fmt.Sprintf(`
+var getArt string = fmt.Sprintf(`
 import FungibleToken from %s
-import NonFungibleTokenAddress from  %s
-import Art,Auction,Content from 0x0c3881df196c01c9
+import NonFungibleToken from  %s
+import Art,Auction,Content from %s
 
 pub struct AddressStatus {
 
@@ -46,7 +46,23 @@ pub fun main(address:Address) : AddressStatus {
     status.art= Art.getArt(address: address)
     return status
 }
-`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress)
+`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+var getContent string = fmt.Sprintf(`
+import FungibleToken from %s
+import NonFungibleToken from  %s
+import Art,Auction,Content from %s
+
+/*
+  This script will check an address and print out its FT, NFT and Versus resources
+ */
+pub fun main(address:Address, artId:UInt64) : String? {
+	 let account=getAccount(address)
+        if let artCollection= account.getCapability(Art.CollectionPublicPath).borrow<&{Art.CollectionPublic}>()  {
+            return artCollection.borrowArt(id: artId)!.content()
+        }
+     return nil
+}
+`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
 var (
 	searchAddress = "344d25cddb58ed2b"
@@ -59,12 +75,18 @@ func main() {
 	}
 
 	ctx := context.Background()
-	result, err := flowClient.ExecuteScriptAtLatestBlock(ctx, []byte(getInfo), []cadence.Value{cadence.NewAddress(flow.HexToAddress(searchAddress))})
+	result, err := flowClient.ExecuteScriptAtLatestBlock(ctx, []byte(getArt), []cadence.Value{cadence.NewAddress(flow.HexToAddress(searchAddress))})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(CadenceValueToJsonString(result))
+	result2, err := flowClient.ExecuteScriptAtLatestBlock(ctx, []byte(getContent), []cadence.Value{cadence.NewAddress(flow.HexToAddress(searchAddress)), cadence.NewUInt64(3)})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(CadenceValueToJsonString(result2))
+
 }
 
 func CadenceValueToJsonString(value cadence.Value) string {

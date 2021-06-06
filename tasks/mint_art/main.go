@@ -17,7 +17,7 @@ var mintArt string = fmt.Sprintf(
 	`
 //testnet
 import FungibleToken from %s
-import NonFungibleTokenAddress from %s
+import NonFungibleToken from %s
 import Art,Content,Versus from %s
 
 transaction(

@@ -10,12 +10,12 @@ import (
 	"github.com/onflow/flow-go-sdk/crypto"
 )
 
-
 func WaitForSeal(ctx context.Context, c *client.Client, id flow.Identifier) *flow.TransactionResult {
 	result, err := c.GetTransactionResult(ctx, id)
 	if err != nil {
 		panic(err)
 	}
+
 	fmt.Printf("Waiting for transaction %s to be sealed...\n", id)
 
 	for result.Status != flow.TransactionStatusSealed {
@@ -26,6 +26,7 @@ func WaitForSeal(ctx context.Context, c *client.Client, id flow.Identifier) *flo
 			panic(err)
 		}
 	}
+
 	fmt.Printf("%v", result)
 	fmt.Printf("Transaction %s sealed\n", id)
 	return result

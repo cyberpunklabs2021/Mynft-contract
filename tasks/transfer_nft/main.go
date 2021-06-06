@@ -16,14 +16,14 @@ import (
 var (
 	toAddress = "0x344d25cddb58ed2b"
 
-	transfetCode = fmt.Sprintf(`
+	transfCode = fmt.Sprintf(`
 import FungibleToken from %s
-import NonFungibleTokenAddress from %s
+import NonFungibleToken from %s
 import Art from %s
 transaction(address:Address, artID: UInt64) {
-  let nftCollection: &NonFungibleTokenAddress.Collection
+  let nftCollection: &NonFungibleToken.Collection
   prepare(account: AuthAccount) {
-    self.nftCollection =account.borrow<&NonFungibleTokenAddress.Collection>(from: Art.CollectionStoragePath)!
+    self.nftCollection =account.borrow<&NonFungibleToken.Collection>(from: Art.CollectionStoragePath)!
   }
 
   execute {
@@ -32,7 +32,7 @@ transaction(address:Address, artID: UInt64) {
       versusCollection.deposit(token: <- art)
   }
 }
-`, common.Config.FlowTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 )
 
 func main() {
@@ -50,7 +50,7 @@ func main() {
 	acctAddress, acctKey, signer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
 
 	tx := flow.NewTransaction().
-		SetScript([]byte(transfetCode)). // 交易要調用的合約
+		SetScript([]byte(transfCode)). // 交易要調用的合約
 		SetGasLimit(100). // 測試網具體應該多少不知道, 但填100都是會過得
 		SetProposalKey(acctAddress, acctKey.Index, acctKey.SequenceNumber). // 會去用就可以了
 		SetReferenceBlockID(referenceBlock.ID). // 標記給交易回朔一個區塊ID
@@ -60,7 +60,7 @@ func main() {
 	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress(toAddress))); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewUInt64(1)); err != nil {
+	if err := tx.AddArgument(cadence.NewUInt64(3)); err != nil {
 		panic(err)
 	}
 
