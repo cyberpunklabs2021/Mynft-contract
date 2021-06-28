@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"log"
-	"math/rand"
 
 	"github.com/onflow/flow-go-sdk/templates"
 	"google.golang.org/grpc"
@@ -23,19 +22,14 @@ func main() {
 
 func CreateAccount() {
 	ctx := context.Background()
-	// server
 	flowClient, err := client.New(common.Config.Node, grpc.WithInsecure())
 	if err != nil {
 		panic(err)
 	}
-	// random seed
-	seed := make([]byte, crypto.MinSeedLength)
-	_, err = rand.Read(seed)
-	if err != nil {
-		panic(err)
-	}
 
-	privateKey1, err := crypto.GeneratePrivateKey(crypto.ECDSA_P256, seed)
+	seed := "qreqwrewqrewqrweqrwqerewqrqwrewqrqwewqerewqrewqrqwerewqrqwrewqrbg"
+
+	privateKey1, err := crypto.GeneratePrivateKey(crypto.ECDSA_P256, []byte(seed))
 	if err != nil {
 		panic(err)
 	}
@@ -58,15 +52,11 @@ func CreateAccount() {
 	createAccountTx.SetReferenceBlockID(referenceBlockID)
 	createAccountTx.SetPayer(serviceAcctAddr)
 
-	// All new accounts must be created by an existing account
-	err = createAccountTx.SignEnvelope(serviceAcctAddr, serviceAcctKey.Index, serviceSigner)
-	if err != nil {
+	if err := createAccountTx.SignEnvelope(serviceAcctAddr, serviceAcctKey.Index, serviceSigner);err != nil {
 		panic(err)
 	}
 
-	// Send the transaction to the network
-	err = flowClient.SendTransaction(ctx, *createAccountTx)
-	if err != nil {
+	if err := flowClient.SendTransaction(ctx, *createAccountTx);err != nil {
 		panic(err)
 	}
 

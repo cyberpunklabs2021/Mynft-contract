@@ -13,34 +13,38 @@ import (
 	"Mynft-contractf/common"
 )
 
-var mintArt string = fmt.Sprintf(
-	`
-//testnet
+var mintArt string = fmt.Sprintf(`
 import FungibleToken from %s
 import NonFungibleToken from %s
-import Art,Content,Versus from %s
+import Mynft from %s
 
-transaction(
-    artist: Address,
-    artistName: String, 
-    artName: String, 
-    content: String, 
-    description: String) {
+transaction(recipient: Address, 
+   	name: String, 
+   	artist: String, 
+   	description: String,
+	tokenUrl: String) {
+    let minter: &Mynft.NFTMinter
 
-    let artistCollection: Capability<&{Art.CollectionPublic}>
-    let client: &Versus.Admin
-
-    prepare(account: AuthAccount) {
-
-        self.client = account.borrow<&Versus.Admin>(from: Versus.VersusAdminStoragePath) ?? panic("could not load versus admin")
-        self.artistCollection= getAccount(artist).getCapability<&{Art.CollectionPublic}>(Art.CollectionPublicPath)
+    prepare(signer: AuthAccount) {
+        self.minter = signer.borrow<&Mynft.NFTMinter>(from: Mynft.MinterStoragePath)
+            ?? panic("Could not borrow a reference to the NFT minter")
     }
 
     execute {
-        let art <-  self.client.mintArt(artist: artist, artistName: artistName, artName: artName, content:content, description: description)
-        self.artistCollection.borrow()!.deposit(token: <- art)
+        // get the public account object for the recipient
+        let recipient = getAccount(recipient)
+
+        // borrow the recipient's public NFT collection reference
+        let receiver = recipient
+            .getCapability(Mynft.CollectionPublicPath)!
+            .borrow<&{NonFungibleToken.CollectionPublic}>()
+            ?? panic("Could not get receiver reference to the NFT Collection")
+
+        // mint the NFT and deposit it to the recipient's collection
+        self.minter.mintNFT(recipient: receiver, name: name,artist:artist,description:description,tokenUrl:tokenUrl)
     }
 }
+
 `, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
 func main() {
@@ -54,6 +58,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	acctAddress, acctKey, signer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
 
 	tx := flow.NewTransaction().
@@ -67,16 +72,28 @@ func main() {
 	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress(common.Config.SingerAddress))); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewString("ExampleArtist222")); err != nil {
+
+	if err := tx.AddArgument(cadence.NewString("Example Name")); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewString("Example title22")); err != nil {
+
+	if err := tx.AddArgument(cadence.NewString("Example artist")); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewString("image url22")); err != nil {
+
+	if err := tx.AddArgument(cadence.NewString("Example description")); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewString("Description22")); err != nil {
+
+	if err := tx.AddArgument(cadence.NewString("Example arLink")); err != nil {
+		panic(err)
+	}
+
+	if err := tx.AddArgument(cadence.NewString("Example ipfsLink")); err != nil {
+		panic(err)
+	}
+
+	if err := tx.AddArgument(cadence.NewString("Example MD5Hash")); err != nil {
 		panic(err)
 	}
 
@@ -88,7 +105,6 @@ func main() {
 		panic(err)
 	}
 
-	// 等待交易完成
 	common.WaitForSeal(ctx, flowClient, tx.ID())
 	fmt.Println("Transaction complet!")
 	fmt.Println("tx.ID().String() ---- ", tx.ID().String())

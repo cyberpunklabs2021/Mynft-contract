@@ -14,25 +14,33 @@ import (
 )
 
 var (
-	toAddress = "0x344d25cddb58ed2b"
+	toAddress = "344d25cddb58ed2b"
 
 	transfCode = fmt.Sprintf(`
-import FungibleToken from %s
-import NonFungibleToken from %s
-import Art from %s
-transaction(address:Address, artID: UInt64) {
-  let nftCollection: &NonFungibleToken.Collection
-  prepare(account: AuthAccount) {
-    self.nftCollection =account.borrow<&NonFungibleToken.Collection>(from: Art.CollectionStoragePath)!
-  }
+	import NonFungibleToken from %s
+	import KittyItems from %s
 
-  execute {
-      let versusCollection : &{Art.CollectionPublic} = getAccount(address).getCapability<&{Art.CollectionPublic}>(Art.CollectionPublicPath).borrow()!
-      let art <- self.nftCollection.withdraw(withdrawID:artID)
-      versusCollection.deposit(token: <- art)
-  }
+	transaction(recipient: Address, withdrawID: UInt64) {
+    prepare(signer: AuthAccount) {
+        
+        // get the recipients public account object
+        let recipient = getAccount(recipient)
+
+        // borrow a reference to the signer's NFT collection
+        let collectionRef = signer.borrow<&KittyItems.Collection>(from: KittyItems.CollectionStoragePath)
+            ?? panic("Could not borrow a reference to the owner's collection")
+
+        // borrow a public reference to the receivers collection
+        let depositRef = recipient.getCapability(KittyItems.CollectionPublicPath)!.borrow<&{NonFungibleToken.CollectionPublic}>()!
+
+        // withdraw the NFT from the owner's collection
+        let nft <- collectionRef.withdraw(withdrawID: withdrawID)
+
+        // Deposit the NFT in the recipient's collection
+        depositRef.deposit(token: <-nft)
+    }
 }
-`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+`,  common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 )
 
 func main() {
@@ -60,7 +68,8 @@ func main() {
 	if err := tx.AddArgument(cadence.NewAddress(flow.HexToAddress(toAddress))); err != nil {
 		panic(err)
 	}
-	if err := tx.AddArgument(cadence.NewUInt64(3)); err != nil {
+
+	if err := tx.AddArgument(cadence.NewUInt64(1)); err != nil {
 		panic(err)
 	}
 
@@ -72,7 +81,6 @@ func main() {
 		panic(err)
 	}
 
-	// 等待交易完成
 	common.WaitForSeal(ctx, flowClient, tx.ID())
 	fmt.Println("Transaction complet!")
 	fmt.Println("tx.ID().String() ---- ", tx.ID().String())

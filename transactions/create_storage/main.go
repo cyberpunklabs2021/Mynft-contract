@@ -14,17 +14,18 @@ import (
 
 var createStorage string = fmt.Sprintf(`
 import NonFungibleToken from %s
-import Art from %s
-transaction() {
-  prepare(signer: AuthAccount) {
-    if signer.borrow<&Art.Collection>(from: Art.CollectionStoragePath) == nil {
-      signer.save(<-Art.createEmptyCollection(), to: Art.CollectionStoragePath)
-      signer.link<&Art.Collection{Art.CollectionPublic}>(
-        Art.CollectionPublicPath,
-        target: Art.CollectionStoragePath
-      )
+import Mynft from %s
+
+transaction {
+    prepare(signer: AuthAccount) {
+        if signer.borrow<&Mynft.Collection>(from: Mynft.CollectionStoragePath) == nil {
+            let collection <- Mynft.createEmptyCollection()
+            
+            signer.save(<-collection, to: Mynft.CollectionStoragePath)
+
+            signer.link<&Mynft.Collection{NonFungibleToken.CollectionPublic, Mynft.MynftCollectionPublic}>(Mynft.CollectionPublicPath, target: Mynft.CollectionStoragePath)
+        }
     }
-  }
 }
 `, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
@@ -57,6 +58,5 @@ func main() {
 		panic(err)
 	}
 
-	// 等待交易完成
 	common.WaitForSeal(ctx, flowClient, tx.ID())
 }

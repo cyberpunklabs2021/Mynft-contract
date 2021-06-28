@@ -2,9 +2,12 @@ package common
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strconv"
 	"time"
 
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/client"
 	"github.com/onflow/flow-go-sdk/crypto"
@@ -40,13 +43,12 @@ func ServiceAccount(flowClient *client.Client, address, privteKey string) (flow.
 		panic(err)
 	}
 
-	// addr := flow.ServiceAddress(flow.Emulator)
 	addr := flow.HexToAddress(address)
 	acc, err := flowClient.GetAccount(context.Background(), addr)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(len(acc.Keys))
+
 	accountKey := acc.Keys[0]
 	signer := crypto.NewInMemorySigner(privateKey, accountKey.HashAlgo)
 	return addr, accountKey, signer
@@ -59,4 +61,45 @@ func GetReferenceBlockId(flowClient *client.Client) flow.Identifier {
 	}
 
 	return block.ID
+}
+
+
+func CadenceValueToJsonString(value cadence.Value) string {
+	result := CadenceValueToInterface(value)
+	json1, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		panic(err)
+	}
+
+	return string(json1)
+}
+
+func CadenceValueToInterface(field cadence.Value) interface{} {
+	switch field.(type) {
+	case cadence.Dictionary:
+		result := map[string]interface{}{}
+		for _, item := range field.(cadence.Dictionary).Pairs {
+			result[item.Key.String()] = CadenceValueToInterface(item.Value)
+		}
+		return result
+	case cadence.Struct:
+		result := map[string]interface{}{}
+		subStructNames := field.(cadence.Struct).StructType.Fields
+		for j, subField := range field.(cadence.Struct).Fields {
+			result[subStructNames[j].Identifier] = CadenceValueToInterface(subField)
+		}
+		return result
+	case cadence.Array:
+		result := []interface{}{}
+		for _, item := range field.(cadence.Array).Values {
+			result = append(result, CadenceValueToInterface(item))
+		}
+		return result
+	default:
+		result, err := strconv.Unquote(field.String())
+		if err != nil {
+			return field.String()
+		}
+		return result
+	}
 }

@@ -19,22 +19,21 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
 	referenceBlock, err := flowClient.GetLatestBlock(context.Background(), false)
 	if err != nil {
 		panic(err)
 	}
-	serviceAcctAddr, serviceAcctKey, singer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
 
-	name := "Content"
-	// name := "Art"
-	// name := "Auction"
-	// name := "Versus"
+	serviceAcctAddr, serviceAcctKey, singer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
+	name := "Mynft"
 
 	contractPath := fmt.Sprintf("../contracts/%s.cdc", name)
 	code, err := ioutil.ReadFile(contractPath)
 	if err != nil {
 		panic(err)
 	}
+
 	tx := templates.AddAccountContract(serviceAcctAddr, templates.Contract{
 		Name:   name,
 		Source: string(code),
@@ -44,11 +43,9 @@ func main() {
 		serviceAcctKey.Index,
 		serviceAcctKey.SequenceNumber,
 	)
-	// we can set the same reference block id. We shouldn't be to far away from it
 	tx.SetReferenceBlockID(referenceBlock.ID)
 	tx.SetPayer(serviceAcctAddr)
 	tx.SetGasLimit(9999)
-
 	if err := tx.SignEnvelope(serviceAcctAddr, serviceAcctKey.Index, singer); err != nil {
 		panic(err)
 	}
