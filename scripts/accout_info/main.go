@@ -40,11 +40,10 @@ pub fun main(address:Address) : AddressStatus {
 
     status.nft= Mynft.getNft(address: address)
     return status
-}
-`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+}`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
 var (
-	searchAddress = "dd41871e37c4240a"
+	searchAddress = "b8daf9d5dad74056"
 )
 
 func main() {
@@ -61,4 +60,3 @@ func main() {
 
 	fmt.Println(common.CadenceValueToJsonString(result))
 }
-

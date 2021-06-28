@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 
 	"github.com/onflow/flow-go-sdk/client"
-
 	"github.com/onflow/flow-go-sdk/templates"
 	"google.golang.org/grpc"
 

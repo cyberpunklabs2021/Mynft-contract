@@ -129,7 +129,7 @@ pub contract Mynft: NonFungibleToken {
         }
     }
 
-    pub fun geNft(address:Address) : [NftData] {
+    pub fun getNft(address:Address) : [NftData] {
         var artData: [NftData] = []
         let account=getAccount(address)
 

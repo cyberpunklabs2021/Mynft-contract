@@ -37,8 +37,7 @@ transaction(amount: UFix64, recipient: Address) {
 
     receiverRef.deposit(from: <-self.sentVault)
   }
-}
-`, common.Config.FungibleTokenAddress, common.Config.FlowTokenAddress)
+}`, common.Config.FungibleTokenAddress, common.Config.FlowTokenAddress)
 
 func main() {
 	transferFlow()

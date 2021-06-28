@@ -18,11 +18,7 @@ import FungibleToken from %s
 import NonFungibleToken from %s
 import Mynft from %s
 
-transaction(recipient: Address, 
-   	name: String, 
-   	artist: String, 
-   	description: String,
-	tokenUrl: String) {
+transaction(recipient: Address,name: String,artist: String,description: String,arLink: String,ipfsLink: String,MD5Hash: String) {
     let minter: &Mynft.NFTMinter
 
     prepare(signer: AuthAccount) {
@@ -31,21 +27,16 @@ transaction(recipient: Address,
     }
 
     execute {
-        // get the public account object for the recipient
         let recipient = getAccount(recipient)
 
-        // borrow the recipient's public NFT collection reference
         let receiver = recipient
             .getCapability(Mynft.CollectionPublicPath)!
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
 
-        // mint the NFT and deposit it to the recipient's collection
-        self.minter.mintNFT(recipient: receiver, name: name,artist:artist,description:description,tokenUrl:tokenUrl)
+        self.minter.mintNFT(recipient: receiver, name: name,artist:artist,description:description,arLink:arLink,ipfsLink:ipfsLink,MD5Hash:MD5Hash)
     }
-}
-
-`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+}`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
 func main() {
 	ctx := context.Background()

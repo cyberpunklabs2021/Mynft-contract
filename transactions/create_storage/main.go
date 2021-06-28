@@ -26,8 +26,7 @@ transaction {
             signer.link<&Mynft.Collection{NonFungibleToken.CollectionPublic, Mynft.MynftCollectionPublic}>(Mynft.CollectionPublicPath, target: Mynft.CollectionStoragePath)
         }
     }
-}
-`, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+}`, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
 func main() {
 	ctx := context.Background()
@@ -41,6 +40,7 @@ func main() {
 		panic(err)
 	}
 
+	// acctAddress, acctKey, signer := common.ServiceAccount(flowClient,"b8daf9d5dad74056", "24a3a149b00de3b26911f17603fba9e5e72281425cae91bd88727659fc86621e")
 	acctAddress, acctKey, signer := common.ServiceAccount(flowClient, common.Config.SingerAddress, common.Config.SingerPriv)
 	tx := flow.NewTransaction().
 		SetScript([]byte(createStorage)).

@@ -27,7 +27,7 @@ func CreateAccount() {
 		panic(err)
 	}
 
-	seed := "qreqwrewqrewqrweqrwqerewqrqwrewqrqwewqerewqrewqrqwerewqrqwrewqrbg"
+	seed := "qreqwrewqrewqrweqrwqerewqrqwrewrqwewqerewqrewqrqwerewqrqwrewqrbg"
 
 	privateKey1, err := crypto.GeneratePrivateKey(crypto.ECDSA_P256, []byte(seed))
 	if err != nil {

@@ -14,33 +14,27 @@ import (
 )
 
 var (
-	toAddress = "344d25cddb58ed2b"
+	toAddress = "b8daf9d5dad74056"
 
 	transfCode = fmt.Sprintf(`
 	import NonFungibleToken from %s
-	import KittyItems from %s
+	import Mynft from %s
 
 	transaction(recipient: Address, withdrawID: UInt64) {
     prepare(signer: AuthAccount) {
         
-        // get the recipients public account object
         let recipient = getAccount(recipient)
 
-        // borrow a reference to the signer's NFT collection
-        let collectionRef = signer.borrow<&KittyItems.Collection>(from: KittyItems.CollectionStoragePath)
+        let collectionRef = signer.borrow<&Mynft.Collection>(from: Mynft.CollectionStoragePath)
             ?? panic("Could not borrow a reference to the owner's collection")
 
-        // borrow a public reference to the receivers collection
-        let depositRef = recipient.getCapability(KittyItems.CollectionPublicPath)!.borrow<&{NonFungibleToken.CollectionPublic}>()!
+        let depositRef = recipient.getCapability(Mynft.CollectionPublicPath)!.borrow<&{NonFungibleToken.CollectionPublic}>()!
 
-        // withdraw the NFT from the owner's collection
         let nft <- collectionRef.withdraw(withdrawID: withdrawID)
 
-        // Deposit the NFT in the recipient's collection
         depositRef.deposit(token: <-nft)
     }
-}
-`,  common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
+}`, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 )
 
 func main() {
@@ -69,7 +63,7 @@ func main() {
 		panic(err)
 	}
 
-	if err := tx.AddArgument(cadence.NewUInt64(1)); err != nil {
+	if err := tx.AddArgument(cadence.NewUInt64(0)); err != nil {
 		panic(err)
 	}
 
