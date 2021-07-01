@@ -88,6 +88,11 @@ func main() {
 		panic(err)
 	}
 
+
+	if err := tx.AddArgument(cadence.NewString("Example type")); err != nil {
+		panic(err)
+	}
+
 	if err := tx.SignEnvelope(acctAddress, acctKey.Index, signer); err != nil {
 		panic(err)
 	}

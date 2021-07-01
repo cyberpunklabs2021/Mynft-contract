@@ -4,7 +4,7 @@ pub contract Mynft: NonFungibleToken {
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
-    pub event Minted(id: UInt64, name: String, artist:String, description:String, arLink:String ,ipfsLink: String,MD5Hash: String)
+    pub event Minted(id: UInt64, name: String, artist:String, description:String, arLink:String ,ipfsLink: String,MD5Hash: String,type: String)
 
     pub let CollectionStoragePath: StoragePath
     pub let CollectionPublicPath: PublicPath
@@ -17,6 +17,7 @@ pub contract Mynft: NonFungibleToken {
         pub let metadata: Metadata
         pub let name: String
         pub let description: String
+        pub let type: String
     }
 
     pub struct Metadata {
@@ -26,8 +27,9 @@ pub contract Mynft: NonFungibleToken {
         pub let arLink: String
         pub let ipfsLink: String
         pub let MD5Hash: String
+        pub let type: String
 
-        init(name: String,artist: String,description: String,arLink: String,ipfsLink: String,MD5Hash: String) {
+        init(name: String,artist: String,description: String,arLink: String,ipfsLink: String,MD5Hash: String,type: String) {
             self.name=name
             self.artist=artist
             self.description=description
@@ -37,6 +39,7 @@ pub contract Mynft: NonFungibleToken {
             self.ipfsLink=ipfsLink
             //MD5 hash of file
             self.MD5Hash=MD5Hash
+            self.type=type
         }
     }
 
@@ -45,12 +48,13 @@ pub contract Mynft: NonFungibleToken {
         pub let name: String
         pub let description: String
         pub let metadata: Metadata
-
+        pub let type: String
         init(initID: UInt64,metadata: Metadata) {
             self.id = initID
             self.metadata=metadata
             self.name = metadata.name
             self.description=metadata.description
+            self.type = metadata.type
         }
     }
 
@@ -150,8 +154,9 @@ pub contract Mynft: NonFungibleToken {
         description: String,
         arLink: String,
         ipfsLink: String,
-        MD5Hash: String) {
-            emit Minted(id: Mynft.totalSupply,  name: name,artist:artist,description:description,arLink:arLink,ipfsLink: ipfsLink,MD5Hash: MD5Hash)
+        MD5Hash: String,
+        type: String) {
+            emit Minted(id: Mynft.totalSupply,  name: name,artist:artist,description:description,arLink:arLink,ipfsLink: ipfsLink,MD5Hash: MD5Hash,type:type)
 
 			recipient.deposit(token: <-create Mynft.NFT(
 			    initID: Mynft.totalSupply,
@@ -161,7 +166,8 @@ pub contract Mynft: NonFungibleToken {
                     description:description,
                     arLink:arLink,
                     ipfsLink:ipfsLink,
-                    MD5Hash:MD5Hash
+                    MD5Hash:MD5Hash,
+                    type:type
                 )))
 
             Mynft.totalSupply = Mynft.totalSupply + (1 as UInt64)
