@@ -18,7 +18,7 @@ import FungibleToken from %s
 import NonFungibleToken from %s
 import Mynft from %s
 
-transaction(recipient: Address,name: String,artist: String,description: String,arLink: String,ipfsLink: String,MD5Hash: String) {
+transaction(recipient: Address,name: String,artist: String,description: String,arLink: String,ipfsLink: String,MD5Hash: String,type: String) {
     let minter: &Mynft.NFTMinter
 
     prepare(signer: AuthAccount) {
@@ -34,7 +34,7 @@ transaction(recipient: Address,name: String,artist: String,description: String,a
             .borrow<&{NonFungibleToken.CollectionPublic}>()
             ?? panic("Could not get receiver reference to the NFT Collection")
 
-        self.minter.mintNFT(recipient: receiver, name: name,artist:artist,description:description,arLink:arLink,ipfsLink:ipfsLink,MD5Hash:MD5Hash)
+        self.minter.mintNFT(recipient: receiver, name: name,artist:artist,description:description,arLink:arLink,ipfsLink:ipfsLink,MD5Hash:MD5Hash,type:type)
     }
 }`, common.Config.FungibleTokenAddress, common.Config.NonFungibleTokenAddress, common.Config.ContractOwnAddress)
 
@@ -87,8 +87,7 @@ func main() {
 	if err := tx.AddArgument(cadence.NewString("Example MD5Hash")); err != nil {
 		panic(err)
 	}
-
-
+	
 	if err := tx.AddArgument(cadence.NewString("Example type")); err != nil {
 		panic(err)
 	}
