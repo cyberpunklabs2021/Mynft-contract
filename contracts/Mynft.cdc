@@ -12,12 +12,9 @@ pub contract Mynft: NonFungibleToken {
 
     pub var totalSupply: UInt64
 
-    pub resource interface Public {
+    pub resource interface NFTPublic {
         pub let id: UInt64
         pub let metadata: Metadata
-        pub let name: String
-        pub let description: String
-        pub let type: String
     }
 
     pub struct Metadata {
@@ -45,16 +42,10 @@ pub contract Mynft: NonFungibleToken {
 
    pub resource NFT: NonFungibleToken.INFT, Public {
         pub let id: UInt64
-        pub let name: String
-        pub let description: String
         pub let metadata: Metadata
-        pub let type: String
         init(initID: UInt64,metadata: Metadata) {
             self.id = initID
             self.metadata=metadata
-            self.name = metadata.name
-            self.description=metadata.description
-            self.type = metadata.type
         }
     }
 
