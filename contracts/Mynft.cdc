@@ -40,7 +40,7 @@ pub contract Mynft: NonFungibleToken {
         }
     }
 
-   pub resource NFT: NonFungibleToken.INFT, Public {
+   pub resource NFT: NonFungibleToken.INFT, NFTPublic {
         pub let id: UInt64
         pub let metadata: Metadata
         init(initID: UInt64,metadata: Metadata) {
