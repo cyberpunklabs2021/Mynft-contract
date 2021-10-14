@@ -1,6 +1,6 @@
 import NonFungibleToken from 0x631e88ae7f1d7c20
 
-pub contract Mynft: NonFungibleToken {
+pub contract Cyber: NonFungibleToken {
     pub event ContractInitialized()
     pub event Withdraw(id: UInt64, from: Address?)
     pub event Deposit(id: UInt64, to: Address?)
@@ -49,19 +49,19 @@ pub contract Mynft: NonFungibleToken {
         }
     }
 
-    pub resource interface MynftCollectionPublic {
+    pub resource interface CyberCollectionPublic {
         pub fun deposit(token: @NonFungibleToken.NFT)
         pub fun getIDs(): [UInt64]
         pub fun borrowNFT(id: UInt64): &NonFungibleToken.NFT
-        pub fun borrowArt(id: UInt64): &Mynft.NFT? {
+        pub fun borrowArt(id: UInt64): &Cyber.NFT? {
             post {
                 (result == nil) || (result?.id == id):
-                    "Cannot borrow Mynft reference: The ID of the returned reference is incorrect"
+                    "Cannot borrow Cyber reference: The ID of the returned reference is incorrect"
             }
         }
     }
 
-    pub resource Collection: MynftCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
+    pub resource Collection: CyberCollectionPublic, NonFungibleToken.Provider, NonFungibleToken.Receiver, NonFungibleToken.CollectionPublic {
         pub var ownedNFTs: @{UInt64: NonFungibleToken.NFT}
 
         pub fun withdraw(withdrawID: UInt64): @NonFungibleToken.NFT {
@@ -73,7 +73,7 @@ pub contract Mynft: NonFungibleToken {
         }
 
         pub fun deposit(token: @NonFungibleToken.NFT) {
-            let token <- token as! @Mynft.NFT
+            let token <- token as! @Cyber.NFT
 
             let id: UInt64 = token.id
 
@@ -93,10 +93,10 @@ pub contract Mynft: NonFungibleToken {
             return &self.ownedNFTs[id] as &NonFungibleToken.NFT
         }
 
-        pub fun borrowArt(id: UInt64): &Mynft.NFT? {
+        pub fun borrowArt(id: UInt64): &Cyber.NFT? {
             if self.ownedNFTs[id] != nil {
                 let ref = &self.ownedNFTs[id] as auth &NonFungibleToken.NFT
-                return ref as! &Mynft.NFT
+                return ref as! &Cyber.NFT
             } else {
                 return nil
             }
@@ -116,9 +116,9 @@ pub contract Mynft: NonFungibleToken {
     }
 
     pub struct NftData {
-        pub let metadata: Mynft.Metadata
+        pub let metadata: Cyber.Metadata
         pub let id: UInt64
-        init(metadata: Mynft.Metadata, id: UInt64) {
+        init(metadata: Cyber.Metadata, id: UInt64) {
             self.metadata= metadata
             self.id=id
         }
@@ -128,7 +128,7 @@ pub contract Mynft: NonFungibleToken {
         var artData: [NftData] = []
         let account=getAccount(address)
 
-        if let artCollection= account.getCapability(self.CollectionPublicPath).borrow<&{Mynft.MynftCollectionPublic}>()  {
+        if let artCollection= account.getCapability(self.CollectionPublicPath).borrow<&{Cyber.CyberCollectionPublic}>()  {
             for id in artCollection.getIDs() {
                 var art=artCollection.borrowArt(id: id)
                 artData.append(NftData(metadata: art!.metadata,id: id))
@@ -147,10 +147,10 @@ pub contract Mynft: NonFungibleToken {
         ipfsLink: String,
         MD5Hash: String,
         type: String) {
-            emit Minted(id: Mynft.totalSupply,  name: name,artist:artist,description:description,arLink:arLink,ipfsLink: ipfsLink,MD5Hash: MD5Hash,type:type)
+            emit Minted(id: Cyber.totalSupply,  name: name,artist:artist,description:description,arLink:arLink,ipfsLink: ipfsLink,MD5Hash: MD5Hash,type:type)
 
-			recipient.deposit(token: <-create Mynft.NFT(
-			    initID: Mynft.totalSupply,
+			recipient.deposit(token: <-create Cyber.NFT(
+			    initID: Cyber.totalSupply,
 			    metadata: Metadata(
                     name: name,
                     artist: artist,
@@ -161,14 +161,14 @@ pub contract Mynft: NonFungibleToken {
                     type:type
                 )))
 
-            Mynft.totalSupply = Mynft.totalSupply + (1 as UInt64)
+            Cyber.totalSupply = Cyber.totalSupply + (1 as UInt64)
 		}
 	}
 
     init() {
-        self.CollectionStoragePath = /storage/MynftCollection
-        self.CollectionPublicPath = /public/MynftCollection
-        self.MinterStoragePath = /storage/MynftMinter
+        self.CollectionStoragePath = /storage/CyberCollection
+        self.CollectionPublicPath = /public/CyberCollection
+        self.MinterStoragePath = /storage/CyberMinter
 
         self.totalSupply = 0
 
